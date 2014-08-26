@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<project name="liferay-deploy-plugin-test">
+	<target name="deploy-test" description="Deploy to ${eun.project} test" depends="deploy">
+		<!-- This task deploys on test and uses the ssh key file for the authentication.
+		The property ${eun.project} needs to be specified to identify the user/Liferay instance
+		on the test server. -->
+		
+		<input message="Introduce the EUN project to determine the test server where to deploy the plugin (i.e scientix, smart, saferinternet, ...):" addproperty="eun.project" />
+		
+		<property name="portlet.file.name" value="${plugin.name}-${lp.version}.${plugin.version}.war" />
+		<property name="key.file.path" value="${user.home}/.ssh/id_rsa" />
+		
+		<echo message="Deploying ${portlet.file.name} on ${eun.project}-test..." />
+		
+		<!-- SCP and SSHEXEC tasks require jsch-0.1.50.jar (http://www.jcraft.com/jsch/)
+			Check the ant error message to know where to put the jar. -->
+		<scp file="${plugin.file}"
+		    todir="lfr${eun.project}@lfrtest.eun.org:~" 
+			keyfile="${key.file.path}"
+		  />
+		<sshexec host="lfrtest.eun.org" username="lfr${eun.project}" keyfile="${key.file.path}"
+		  command="cp ~/${portlet.file.name} /opt/liferay-portal-5.2.3-${eun.project}/deploy" />
+		
+		<echo message="Done." />
+	</target>
+</project>
